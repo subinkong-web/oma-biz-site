@@ -109,6 +109,38 @@ input[type=range]{width:100%;accent-color:var(--acc);height:28px}
 .incl li:before{content:"✓";color:var(--acc);font-weight:800}
 .incl ul.opt li:before{content:"+";color:#8a919b}
 .note{font-size:13px;color:#8a919b}
+.opts{border-top:1px solid #333944;padding-top:22px;margin-bottom:22px}
+.opts .oh{font-size:15px;color:#cfd3d8;margin-bottom:12px}
+.orow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px dashed #2c323b}
+.orow .on1{font-size:15px;color:#e4e7ea;font-weight:600}
+.orow .od{display:block;font-size:12px;color:#8a919b;font-weight:400;margin-top:2px}
+.qty{display:flex;align-items:center;gap:0;flex:none}
+.qty button{width:34px;height:34px;border:1px solid #333944;background:#262b33;color:#fff;font:inherit;font-size:18px;cursor:pointer}
+.qty button:first-child{border-radius:10px 0 0 10px}.qty button:last-child{border-radius:0 10px 10px 0}
+.qty span{min-width:58px;height:34px;display:grid;place-items:center;border-top:1px solid #333944;border-bottom:1px solid #333944;font-weight:700;font-size:14px}
+.sum{display:grid;gap:6px;margin-bottom:18px;font-size:14px;color:#aab0b8}
+.sum div{display:flex;justify-content:space-between}.sum b{color:#e4e7ea;font-weight:600}
+.qbtn{width:100%;justify-content:center;margin-top:22px;padding:16px;font-size:16px;border:0;cursor:pointer}
+/* quote */
+.qm{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;z-index:120;padding:30px 16px;overflow:auto}
+.qm.on{display:flex}
+.qbox{background:#fff;color:#111418;border-radius:16px;width:min(760px,100%);padding:28px}
+.qform{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 18px}
+.qform input{border:1px solid #d6d9de;border-radius:10px;padding:11px 12px;font:inherit;font-size:15px;width:100%}
+.qact{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
+.qact button,.qact a{border:1px solid #111418;background:#fff;color:#111418;border-radius:999px;padding:10px 18px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none}
+.qact .pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.qdoc{border:1px solid #e6e3dd;border-radius:10px;padding:30px;font-size:13px;line-height:1.6}
+.qdoc h2{font-size:26px;text-align:center;letter-spacing:12px;margin-bottom:18px}
+.qdoc .qmeta{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.qdoc table{width:100%;border-collapse:collapse}
+.qdoc th,.qdoc td{border:1px solid #cfd3d8;padding:7px 9px;text-align:left;vertical-align:top}
+.qdoc th{background:#f3f4f6;font-weight:700;white-space:nowrap}
+.qdoc td.n{text-align:right;white-space:nowrap}
+.qdoc .qtot td{font-weight:800;font-size:15px;background:#fff4ee}
+.qdoc .qnote{margin-top:14px;color:#5b6370;font-size:12px}
+@media(max-width:600px){.qform{grid-template-columns:1fr}.qdoc{padding:16px}.qdoc .qmeta{grid-template-columns:1fr}.orow{flex-wrap:wrap}}
+@media print{body>*:not(#qm){display:none!important}#qm{position:static;display:block;background:none;padding:0}.qbox{width:100%;padding:0}.noprint{display:none!important}.qdoc{border:0;padding:0}}
 /* process */
 .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;counter-reset:s}
 .step{border-top:3px solid var(--ink);padding-top:18px}
@@ -243,7 +275,17 @@ footer a{color:#cfd3d8}
     <div class="presets" id="presets">
      <button data-s="15">15초 SNS 숏폼</button><button data-s="30">30초 광고</button><button data-s="60" class="on">1분 제품 소개</button><button data-s="120">2분 기업 홍보</button><button data-s="180">3분 회사 소개</button>
     </div>
-    <div class="total"><span class="t">예상 제작비</span><span class="v" id="tot"></span></div>
+    <div class="opts">
+     <div class="oh">별도 옵션</div>
+     <div id="opts"></div>
+    </div>
+    <div class="sum">
+     <div><span>영상 제작</span><b id="s_base"></b></div>
+     <div><span>별도 옵션</span><b id="s_opt"></b></div>
+     <div><span>부가세 (10%)</span><b id="s_vat"></b></div>
+    </div>
+    <div class="total"><span class="t">합계 (부가세 포함)</span><span class="v" id="tot"></span></div>
+    <button class="btn btn-acc qbtn" id="qopen">견적서 받기</button>
    </div>
    <div class="incl">
     <h3>가격에 포함된 것</h3>
@@ -257,9 +299,9 @@ footer a{color:#cfd3d8}
     <ul class="opt">
      <li>실사 모델 촬영 — 실제 모델·배우 출연</li>
      <li>실제 장소 촬영 — 공장·매장·현장에 직접 가서 촬영</li>
-     <li>녹음 — 성우 내레이션·외국어 녹음</li>
+     <li>녹음 — 한국어 성우·원어민 성우 내레이션</li>
     </ul>
-    <p class="note">옵션 비용과 외국어 버전·세로형 숏폼 추가는 상담할 때 따로 견적을 드립니다.</p>
+    <p class="note">옵션은 계산기에서 함께 골라 견적서로 받으실 수 있습니다. 해외 현지 촬영과 외국어 버전·세로형 숏폼 추가는 상담할 때 따로 견적을 드립니다.</p>
    </div>
   </div>
  </div>
@@ -313,6 +355,22 @@ footer a{color:#cfd3d8}
  </div>
 </footer>
 
+<div class="qm" id="qm"><div class="qbox">
+ <div class="noprint">
+  <h3 style="font-size:20px">견적서 받기</h3>
+  <p style="color:#5b6370;font-size:14px">회사명을 넣으시면 아래 견적서에 바로 들어갑니다. 입력하신 내용은 이 화면에서만 쓰이고 저장되지 않습니다.</p>
+  <div class="qform">
+   <input id="q_co" placeholder="회사명 (필수)"><input id="q_nm" placeholder="담당자 성함">
+   <input id="q_tel" placeholder="연락처"><input id="q_mail" placeholder="이메일">
+  </div>
+ </div>
+ <div class="qdoc" id="qdoc"></div>
+ <div class="qact noprint">
+  <button id="qclose">닫기</button>
+  <a id="qmail" href="#">이메일로 상담 요청</a>
+  <button class="pri" id="qprint">PDF 저장 · 인쇄</button>
+ </div>
+</div></div>
 <div class="modal" id="modal"><span class="x" id="mx">×</span><video id="mv" controls playsinline></video></div>
 
 <script>
@@ -358,16 +416,78 @@ function closeV(){ mv.pause(); mv.removeAttribute('src'); mv.load(); m.classList
 document.getElementById('mx').onclick = closeV;
 m.onclick = e => { if(e.target===m) closeV(); };
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeV(); });
+// 별도 옵션 단가(원, 부가세 별도) — 대표님 확정값으로 바꾸는 곳
+const OPTS = [
+ {k:'model', n:'실사 모델 촬영', d:'모델 1인 · 반일(4시간) · 출연료·초상권 1년 포함', p:400000, u:'명', max:10},
+ {k:'loc', n:'실제 장소 촬영', d:'국내 1회차 · 반일 · 촬영감독·장비·조명 포함', p:900000, u:'회차', max:10},
+ {k:'vo_ko', n:'한국어 성우 녹음', d:'전문 성우 내레이션 · 스튜디오 녹음', p:250000, u:'건', max:1},
+ {k:'vo_fx', n:'원어민 성우 녹음', d:'영어·중국어·일본어 등 · 언어당', p:350000, u:'개 언어', max:10}
+];
+const qty = {}; OPTS.forEach(o => qty[o.k] = 0);
+const ob = document.getElementById('opts');
+ob.innerHTML = OPTS.map(o => `<div class="orow"><div class="on1">${o.n} <small style="color:#aab0b8;font-weight:500">+${won(o.p)}원/${o.u==='개 언어'?'언어':o.u}</small><span class="od">${o.d}</span></div>
+ <div class="qty"><button data-k="${o.k}" data-d="-1">−</button><span id="q_${o.k}">0${o.u==='개 언어'?'':o.u}</span><button data-k="${o.k}" data-d="1">+</button></div></div>`).join('');
+ob.querySelectorAll('.qty button').forEach(b => b.onclick = () => {
+ const o = OPTS.find(x => x.k===b.dataset.k);
+ qty[o.k] = Math.max(0, Math.min(o.max, qty[o.k] + +b.dataset.d));
+ document.getElementById('q_'+o.k).textContent = qty[o.k] + (o.u==='개 언어' ? '' : o.u);
+ calc();
+});
+let Q = {};
 const sec = document.getElementById('sec'), secv = document.getElementById('secv'), tot = document.getElementById('tot'), ps = document.getElementById('presets');
 function calc(){
  const s = +sec.value, mm = Math.floor(s/60), ss = s%60;
  secv.textContent = (mm ? mm+'분 ' : '') + (ss ? ss+'초' : '');
- tot.innerHTML = won(s*UNIT) + '<small>원</small>';
+ const base = s*UNIT, opt = OPTS.reduce((a,o) => a + o.p*qty[o.k], 0), vat = Math.round((base+opt)/10);
+ Q = {s, len: secv.textContent, base, opt, vat, sum: base+opt+vat};
+ document.getElementById('s_base').textContent = won(base)+'원';
+ document.getElementById('s_opt').textContent = won(opt)+'원';
+ document.getElementById('s_vat').textContent = won(vat)+'원';
+ tot.innerHTML = won(Q.sum) + '<small>원</small>';
  ps.querySelectorAll('button').forEach(b => b.className = (+b.dataset.s===s) ? 'on' : '');
 }
 sec.oninput = calc;
 ps.querySelectorAll('button').forEach(b => b.onclick = () => { sec.value = b.dataset.s; calc(); });
 calc();
+// 견적서
+const qm = document.getElementById('qm'), qd = document.getElementById('qdoc');
+const esc = t => t.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+let qno = '', qdate = '';
+function drawQ(){
+ const v = id => esc(document.getElementById(id).value.trim());
+ const co = v('q_co') || '<span style="color:#b0b5bc">(회사명)</span>';
+ const rows = [[`영상 제작 (기획·대본·제작·편집·자막·배경음악·수정 포함)`, `${Q.len} (${Q.s}초)`, UNIT, Q.base]]
+  .concat(OPTS.filter(o => qty[o.k]).map(o => [`${o.n} — ${o.d}`, qty[o.k]+(o.u==='개 언어'?'개 언어':o.u), o.p, o.p*qty[o.k]]));
+ const until = new Date(Date.now()+30*864e5);
+ qd.innerHTML = `<h2>견 적 서</h2>
+ <div class="qmeta">
+  <div><b style="font-size:17px">${co} 귀하</b><br>${v('q_nm') ? '담당 '+v('q_nm')+'<br>' : ''}${v('q_tel') ? v('q_tel')+'<br>' : ''}${v('q_mail')}<br><br>견적번호 ${qno}<br>견적일 ${qdate}<br>유효기간 ${until.getFullYear()}.${pad(until.getMonth()+1)}.${pad(until.getDate())}까지</div>
+  <div><table><tr><th>상호</th><td>오버미디어아트</td></tr><tr><th>대표</th><td>공수빈</td></tr><tr><th>사업자번호</th><td>408-33-24766</td></tr><tr><th>주소</th><td>경기도 고양시 일산동구 노첨길24번길 34-3, 2층</td></tr><tr><th>연락처</th><td>010-3468-9660<br>oversubin87@gmail.com</td></tr></table></div>
+ </div>
+ <table><tr><th>품목</th><th>수량</th><th>단가</th><th>금액</th></tr>
+  ${rows.map(r => `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${won(r[2])}</td><td class="n">${won(r[3])}</td></tr>`).join('')}
+  <tr><td colspan="3" class="n">공급가액</td><td class="n">${won(Q.base+Q.opt)}</td></tr>
+  <tr><td colspan="3" class="n">부가세 (10%)</td><td class="n">${won(Q.vat)}</td></tr>
+  <tr class="qtot"><td colspan="3" class="n">합계 (부가세 포함)</td><td class="n">${won(Q.sum)}원</td></tr>
+ </table>
+ <p class="qnote">· 영상 단가는 형태(제품 소개·기업 홍보·3D 애니메이션·로케이션·실내 세트)와 관계없이 초당 ${won(UNIT)}원으로 같습니다.<br>· 해외 현지 촬영, 외국어 자막 버전, 세로형 숏폼 추가는 상담 후 별도 견적입니다.<br>· 본 견적서는 홈페이지 계산기로 만든 예상 견적이며, 최종 금액은 상담 후 계약서로 확정합니다.</p>`;
+ const body = `오버미디어아트 견적 상담 요청\n\n견적번호: ${qno}\n회사명: ${document.getElementById('q_co').value}\n담당자: ${document.getElementById('q_nm').value}\n연락처: ${document.getElementById('q_tel').value}\n\n영상 길이: ${Q.len}\n`
+  + OPTS.filter(o => qty[o.k]).map(o => `${o.n}: ${qty[o.k]}${o.u}\n`).join('') + `합계(부가세 포함): ${won(Q.sum)}원\n`;
+ document.getElementById('qmail').href = 'mailto:oversubin87@gmail.com?subject=' + encodeURIComponent('[견적 상담] ' + (document.getElementById('q_co').value || '') + ' ' + qno) + '&body=' + encodeURIComponent(body);
+}
+document.getElementById('qopen').onclick = () => {
+ const d = new Date(); qdate = `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())}`;
+ qno = `OMA-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
+ drawQ(); qm.classList.add('on');
+};
+['q_co','q_nm','q_tel','q_mail'].forEach(id => document.getElementById(id).oninput = drawQ);
+document.getElementById('qclose').onclick = () => qm.classList.remove('on');
+qm.onclick = e => { if(e.target===qm) qm.classList.remove('on'); };
+document.getElementById('qprint').onclick = () => {
+ if(!document.getElementById('q_co').value.trim()){ document.getElementById('q_co').focus(); document.getElementById('q_co').style.borderColor='#ff5a1f'; return; }
+ window.print();
+};
 </script>
 </body>
 </html>
