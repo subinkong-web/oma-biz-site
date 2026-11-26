@@ -138,6 +138,7 @@ input[type=range]{width:100%;accent-color:var(--acc);height:28px}
 .qdoc th{background:#f3f4f6;font-weight:700;white-space:nowrap}
 .qdoc td.n{text-align:right;white-space:nowrap}
 .qdoc .qtot td{font-weight:800;font-size:15px;background:#fff4ee}
+.qdoc td.qseal{position:relative}.qdoc td.qseal img{position:absolute;left:38px;top:50%;width:58px;height:58px;transform:translateY(-50%);opacity:.92;pointer-events:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .qdoc .qnote{margin-top:14px;color:#5b6370;font-size:12px}
 @media(max-width:600px){.qform{grid-template-columns:1fr}.qdoc{padding:16px}.qdoc .qmeta{grid-template-columns:1fr}.orow{flex-wrap:wrap}}
 @media print{body>*:not(#qm){display:none!important}#qm{position:static;display:block;background:none;padding:0}.qbox{width:100%;padding:0}.noprint{display:none!important}.qdoc{border:0;padding:0}}
@@ -463,7 +464,7 @@ function drawQ(){
  qd.innerHTML = `<h2>견 적 서</h2>
  <div class="qmeta">
   <div><b style="font-size:17px">${co} 귀하</b><br>${v('q_nm') ? '담당 '+v('q_nm')+'<br>' : ''}${v('q_tel') ? v('q_tel')+'<br>' : ''}${v('q_mail')}<br><br>견적번호 ${qno}<br>견적일 ${qdate}<br>유효기간 ${until.getFullYear()}.${pad(until.getMonth()+1)}.${pad(until.getDate())}까지</div>
-  <div><table><tr><th>상호</th><td>오버미디어아트</td></tr><tr><th>대표</th><td>공수빈</td></tr><tr><th>사업자번호</th><td>408-33-24766</td></tr><tr><th>주소</th><td>경기도 고양시 일산동구 노첨길24번길 34-3, 2층</td></tr><tr><th>연락처</th><td>010-3468-9660<br>oversubin87@gmail.com</td></tr></table></div>
+  <div><table><tr><th>상호</th><td>오버미디어아트</td></tr><tr><th>대표</th><td class="qseal">공수빈 (인)<img src="media/oma_seal.png" alt=""></td></tr><tr><th>사업자번호</th><td>408-33-24766</td></tr><tr><th>주소</th><td>경기도 고양시 일산동구 노첨길24번길 34-3, 2층</td></tr><tr><th>연락처</th><td>010-3468-9660<br>oversubin87@gmail.com</td></tr></table></div>
  </div>
  <table><tr><th>품목</th><th>수량</th><th>단가</th><th>금액</th></tr>
   ${rows.map(r => `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${won(r[2])}</td><td class="n">${won(r[3])}</td></tr>`).join('')}
