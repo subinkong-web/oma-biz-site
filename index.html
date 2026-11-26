@@ -113,6 +113,7 @@ input[type=range]{width:100%;accent-color:var(--acc);height:28px}
 .opts .oh{font-size:15px;color:#cfd3d8;margin-bottom:12px}
 .orow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px dashed #2c323b}
 .orow .on1{font-size:15px;color:#e4e7ea;font-weight:600}
+.orow .ox{display:flex;align-items:center;gap:7px;font-size:13px;color:#cfd3d8;font-weight:500;margin-top:7px;cursor:pointer}.orow .ox input{accent-color:var(--acc);width:16px;height:16px}
 .orow .od{display:block;font-size:12px;color:#8a919b;font-weight:400;margin-top:2px}
 .qty{display:flex;align-items:center;gap:0;flex:none}
 .qty button{width:34px;height:34px;border:1px solid #333944;background:#262b33;color:#fff;font:inherit;font-size:18px;cursor:pointer}
@@ -140,7 +141,7 @@ input[type=range]{width:100%;accent-color:var(--acc);height:28px}
 .qdoc .qtot td{font-weight:800;font-size:15px;background:#fff4ee}
 .qdoc td.qseal{position:relative}.qdoc td.qseal img{position:absolute;left:38px;top:50%;width:58px;height:58px;transform:translateY(-50%);opacity:.92;pointer-events:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .qdoc .qnote{margin-top:14px;color:#5b6370;font-size:12px}
-@media(max-width:600px){.qform{grid-template-columns:1fr}.qdoc{padding:16px}.qdoc .qmeta{grid-template-columns:1fr}.orow{flex-wrap:wrap}}
+@media(max-width:600px){.qform{grid-template-columns:1fr}.qdoc{padding:16px}.qdoc .qmeta{grid-template-columns:1fr}.orow .on1{flex:1;min-width:0}}
 @media print{body>*:not(#qm){display:none!important}#qm{position:static;display:block;background:none;padding:0}.qbox{width:100%;padding:0}.noprint{display:none!important}.qdoc{border:0;padding:0}}
 /* process */
 .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;counter-reset:s}
@@ -272,9 +273,9 @@ footer a{color:#cfd3d8}
    <div class="calc">
     <div class="unit"><span class="big"><span class="js-unit"></span>원</span><span class="s">/ 영상 1초</span></div>
     <label for="sec">영상 길이 <b id="secv">60초</b></label>
-    <input type="range" id="sec" min="15" max="180" step="5" value="60">
+    <input type="range" id="sec" min="15" max="1800" step="5" value="60">
     <div class="presets" id="presets">
-     <button data-s="15">15초 SNS 숏폼</button><button data-s="30">30초 광고</button><button data-s="60" class="on">1분 제품 소개</button><button data-s="120">2분 기업 홍보</button><button data-s="180">3분 회사 소개</button>
+     <button data-s="15">15초 SNS 숏폼</button><button data-s="30">30초 광고</button><button data-s="60" class="on">1분 제품 소개</button><button data-s="180">3분 회사 소개</button><button data-s="600">10분 교육 영상</button><button data-s="1800">30분 다큐</button>
     </div>
     <div class="opts">
      <div class="oh">별도 옵션</div>
@@ -284,6 +285,7 @@ footer a{color:#cfd3d8}
      <div><span>영상 제작</span><b id="s_base"></b></div>
      <div><span>별도 옵션</span><b id="s_opt"></b></div>
      <div><span>부가세 (10%)</span><b id="s_vat"></b></div>
+     <div id="s_xw" hidden><span>별도 협의</span><b id="s_x"></b></div>
     </div>
     <div class="total"><span class="t">합계 (부가세 포함)</span><span class="v" id="tot"></span></div>
     <button class="btn btn-acc qbtn" id="qopen">견적서 받기</button>
@@ -298,9 +300,11 @@ footer a{color:#cfd3d8}
     </ul>
     <h3>별도 옵션</h3>
     <ul class="opt">
-     <li>실사 모델 촬영 — 실제 모델·배우 출연</li>
-     <li>실제 장소 촬영 — 공장·매장·현장에 직접 가서 촬영</li>
+     <li>실사 모델 촬영 — 실제 모델·배우 출연 (에이전시 등록 모델은 출연료 별도 협의)</li>
+     <li>가상 모델 — 실사와 구분되지 않는 수준의 가상 인물 출연</li>
+     <li>실제 장소 촬영 — 공장·매장·현장에 직접 가서 촬영 (로케이션 대여비 별도)</li>
      <li>녹음 — 한국어 성우·원어민 성우 내레이션</li>
+     <li>가상 성우 — 전달력이 보장된 또렷한 내레이션, 여러 언어</li>
     </ul>
     <p class="note">옵션은 계산기에서 함께 골라 견적서로 받으실 수 있습니다. 해외 현지 촬영과 외국어 버전·세로형 숏폼 추가는 상담할 때 따로 견적을 드립니다.</p>
    </div>
@@ -419,19 +423,32 @@ m.onclick = e => { if(e.target===m) closeV(); };
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeV(); });
 // 별도 옵션 단가(원, 부가세 별도) — 대표님 확정값으로 바꾸는 곳
 const OPTS = [
- {k:'model', n:'실사 모델 촬영', d:'모델 1인 · 반일(4시간) · 출연료·초상권 1년 포함', p:400000, u:'명', max:10},
- {k:'loc', n:'실제 장소 촬영', d:'국내 1회차 · 반일 · 촬영감독·장비·조명 포함', p:900000, u:'회차', max:10},
+ {k:'model', n:'실사 모델 촬영', d:'모델 1인 · 반일(4시간) · 출연료·초상권 1년 포함', p:500000, u:'명', max:10,
+  x:{k:'agency', lab:'에이전시 등록 모델로 섭외', row:'에이전시 등록 모델 출연료'}},
+ {k:'vmodel', n:'가상 모델', d:'실사와 구분되지 않는 수준 · 1인 · 영상 끝까지 같은 얼굴 유지', p:200000, u:'명', max:10},
+ {k:'loc', n:'실제 장소 촬영', d:'국내 1회차 · 반일 · 촬영감독·장비·조명 포함 · 로케이션 대여비 별도', p:1000000, u:'회차', max:10,
+  fx:'로케이션 대여비 (장소 확정 후 실비)'},
  {k:'vo_ko', n:'한국어 성우 녹음', d:'전문 성우 내레이션 · 스튜디오 녹음', p:250000, u:'건', max:1},
- {k:'vo_fx', n:'원어민 성우 녹음', d:'영어·중국어·일본어 등 · 언어당', p:350000, u:'개 언어', max:10}
+ {k:'vo_fx', n:'원어민 성우 녹음', d:'영어·중국어·일본어 등 · 언어당', p:350000, u:'개 언어', max:10},
+ {k:'vvo', n:'가상 성우', d:'전달력이 보장된 또렷한 내레이션 · 발음·속도 일정 · 언어당', p:100000, u:'개 언어', max:10}
 ];
+const xon = {};
+// 금액을 정하지 않고 「별도 협의」로 견적서에 올라가는 항목
+const extras = () => OPTS.filter(o => qty[o.k]).flatMap(o => [].concat(o.x && xon[o.x.k] ? [o.x.row] : [], o.fx ? [o.fx] : []));
 const qty = {}; OPTS.forEach(o => qty[o.k] = 0);
 const ob = document.getElementById('opts');
-ob.innerHTML = OPTS.map(o => `<div class="orow"><div class="on1">${o.n} <small style="color:#aab0b8;font-weight:500">+${won(o.p)}원/${o.u==='개 언어'?'언어':o.u}</small><span class="od">${o.d}</span></div>
+ob.innerHTML = OPTS.map(o => `<div class="orow"><div class="on1">${o.n} <small style="color:#aab0b8;font-weight:500">+${won(o.p)}원/${o.u==='개 언어'?'언어':o.u}</small><span class="od">${o.d}</span>${o.x ? `<label class="ox"><input type="checkbox" data-x="${o.x.k}">${o.x.lab} <span style="color:#8a919b">(출연료 별도 협의)</span></label>` : ''}</div>
  <div class="qty"><button data-k="${o.k}" data-d="-1">−</button><span id="q_${o.k}">0${o.u==='개 언어'?'':o.u}</span><button data-k="${o.k}" data-d="1">+</button></div></div>`).join('');
 ob.querySelectorAll('.qty button').forEach(b => b.onclick = () => {
  const o = OPTS.find(x => x.k===b.dataset.k);
  qty[o.k] = Math.max(0, Math.min(o.max, qty[o.k] + +b.dataset.d));
  document.getElementById('q_'+o.k).textContent = qty[o.k] + (o.u==='개 언어' ? '' : o.u);
+ calc();
+});
+ob.querySelectorAll('.ox input').forEach(c => c.onchange = () => {
+ xon[c.dataset.x] = c.checked;
+ const o = OPTS.find(x => x.x && x.x.k===c.dataset.x);
+ if(c.checked && !qty[o.k]){ qty[o.k] = 1; document.getElementById('q_'+o.k).textContent = '1'+o.u; }
  calc();
 });
 let Q = {};
@@ -445,6 +462,7 @@ function calc(){
  document.getElementById('s_opt').textContent = won(opt)+'원';
  document.getElementById('s_vat').textContent = won(vat)+'원';
  tot.innerHTML = won(Q.sum) + '<small>원</small>';
+ const ex = extras(); document.getElementById('s_xw').hidden = !ex.length; document.getElementById('s_x').textContent = ex.length + '건 (견적서에 표시)';
  ps.querySelectorAll('button').forEach(b => b.className = (+b.dataset.s===s) ? 'on' : '');
 }
 sec.oninput = calc;
@@ -459,7 +477,8 @@ function drawQ(){
  const v = id => esc(document.getElementById(id).value.trim());
  const co = v('q_co') || '<span style="color:#b0b5bc">(회사명)</span>';
  const rows = [[`영상 제작 (기획·대본·제작·편집·자막·배경음악·수정 포함)`, `${Q.len} (${Q.s}초)`, UNIT, Q.base]]
-  .concat(OPTS.filter(o => qty[o.k]).map(o => [`${o.n} — ${o.d}`, qty[o.k]+(o.u==='개 언어'?'개 언어':o.u), o.p, o.p*qty[o.k]]));
+  .concat(OPTS.filter(o => qty[o.k]).map(o => [`${o.n} — ${o.d}${o.x && xon[o.x.k] ? ' (에이전시 모델 출연료는 별도 협의)' : ''}`, qty[o.k]+(o.u==='개 언어'?'개 언어':o.u), o.p, o.p*qty[o.k]]))
+  .concat(extras().map(t => [t, '', '별도 협의', '별도 협의']));
  const until = new Date(Date.now()+30*864e5);
  qd.innerHTML = `<h2>견 적 서</h2>
  <div class="qmeta">
@@ -467,14 +486,14 @@ function drawQ(){
   <div><table><tr><th>상호</th><td>오버미디어아트</td></tr><tr><th>대표</th><td class="qseal">공수빈 (인)<img src="media/oma_seal.png" alt=""></td></tr><tr><th>사업자번호</th><td>408-33-24766</td></tr><tr><th>주소</th><td>경기도 고양시 일산동구 노첨길24번길 34-3, 2층</td></tr><tr><th>연락처</th><td>010-3468-9660<br>oversubin87@gmail.com</td></tr></table></div>
  </div>
  <table><tr><th>품목</th><th>수량</th><th>단가</th><th>금액</th></tr>
-  ${rows.map(r => `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${won(r[2])}</td><td class="n">${won(r[3])}</td></tr>`).join('')}
+  ${rows.map(r => `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${typeof r[2]==='number' ? won(r[2]) : r[2]}</td><td class="n">${typeof r[3]==='number' ? won(r[3]) : r[3]}</td></tr>`).join('')}
   <tr><td colspan="3" class="n">공급가액</td><td class="n">${won(Q.base+Q.opt)}</td></tr>
   <tr><td colspan="3" class="n">부가세 (10%)</td><td class="n">${won(Q.vat)}</td></tr>
-  <tr class="qtot"><td colspan="3" class="n">합계 (부가세 포함)</td><td class="n">${won(Q.sum)}원</td></tr>
+  <tr class="qtot"><td colspan="3" class="n">합계 (부가세 포함)${extras().length ? ' · 별도 협의 항목 제외' : ''}</td><td class="n">${won(Q.sum)}원</td></tr>
  </table>
  <p class="qnote">· 영상 단가는 형태(제품 소개·기업 홍보·3D 애니메이션·로케이션·실내 세트)와 관계없이 초당 ${won(UNIT)}원으로 같습니다.<br>· 해외 현지 촬영, 외국어 자막 버전, 세로형 숏폼 추가는 상담 후 별도 견적입니다.<br>· 본 견적서는 홈페이지 계산기로 만든 예상 견적이며, 최종 금액은 상담 후 계약서로 확정합니다.</p>`;
  const body = `오버미디어아트 견적 상담 요청\n\n견적번호: ${qno}\n회사명: ${document.getElementById('q_co').value}\n담당자: ${document.getElementById('q_nm').value}\n연락처: ${document.getElementById('q_tel').value}\n\n영상 길이: ${Q.len}\n`
-  + OPTS.filter(o => qty[o.k]).map(o => `${o.n}: ${qty[o.k]}${o.u}\n`).join('') + `합계(부가세 포함): ${won(Q.sum)}원\n`;
+  + OPTS.filter(o => qty[o.k]).map(o => `${o.n}: ${qty[o.k]}${o.u}\n`).join('') + extras().map(t => `${t}: 별도 협의\n`).join('') + `합계(부가세 포함): ${won(Q.sum)}원\n`;
  document.getElementById('qmail').href = 'mailto:oversubin87@gmail.com?subject=' + encodeURIComponent('[견적 상담] ' + (document.getElementById('q_co').value || '') + ' ' + qno) + '&body=' + encodeURIComponent(body);
 }
 document.getElementById('qopen').onclick = () => {
