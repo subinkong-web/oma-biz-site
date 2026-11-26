@@ -98,6 +98,14 @@ input[type=range]{width:100%;accent-color:var(--acc);height:28px}
 .presets{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 30px}
 .presets button{background:#262b33;border:1px solid #333944;color:#e4e7ea;border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer}
 .presets button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.calc .same{font-size:13px;color:#8a919b;margin:-6px 0 22px}
+.ratio{border-top:1px solid #333944;padding-top:22px;margin-bottom:22px}
+.ratio .oh{font-size:15px;color:#cfd3d8;margin-bottom:4px}
+.ratio .od{font-size:12px;color:#8a919b;margin-bottom:12px}
+.ratio .presets{margin:0}
+.ratio button{display:inline-flex;align-items:center;gap:8px}
+.ratio button i{display:inline-block;border:1.5px solid currentColor;border-radius:2px;opacity:.85}
+.ratio button small{font-size:11px;opacity:.85}
 .total{border-top:1px solid #333944;padding-top:24px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
 .total .t{font-size:15px;color:#aab0b8}
 .total .v{font-size:40px;font-weight:800}
@@ -311,14 +319,20 @@ footer a{color:#cfd3d8}
 
 <section class="price" id="price">
  <div class="wrap">
-  <div class="sec-head"><div class="k">PRICE</div><h2>길이를 고르면<br>가격이 바로 나옵니다.</h2><p>부가세 별도. 모든 기업에 같은 가격을 적용합니다.</p></div>
+  <div class="sec-head"><div class="k">PRICE</div><h2>길이를 고르면<br>가격이 바로 나옵니다.</h2><p>부가세 별도. 3D 애니메이션도, 블록버스터급 장면도 같은 초당 가격입니다.</p></div>
   <div class="price-grid">
    <div class="calc">
     <div class="unit"><span class="big"><span class="js-unit"></span>원</span><span class="s">/ 영상 1초</span></div>
+    <p class="same">제품 소개·3D 애니메이션·블록버스터급 장면 — 어떤 영상이든 같은 단가</p>
     <label for="sec">영상 길이 <b id="secv">60초</b></label>
     <input type="range" id="sec" min="15" max="1800" step="5" value="60">
     <div class="presets" id="presets">
-     <button data-s="15">15초 SNS 숏폼</button><button data-s="30">30초 광고</button><button data-s="60" class="on">1분 제품 소개</button><button data-s="180">3분 회사 소개</button><button data-s="600">10분 교육 영상</button><button data-s="1800">30분 다큐</button>
+     <button data-s="15">15초</button><button data-s="30">30초</button><button data-s="60" class="on">1분</button><button data-s="180">3분</button><button data-s="600">10분</button><button data-s="1800">30분</button>
+    </div>
+    <div class="ratio">
+     <div class="oh">화면 비율</div>
+     <div class="od">하나는 영상 가격에 포함됩니다. 비율을 더하면 1개당 초당 <span class="js-runit"></span>원이 붙습니다.</div>
+     <div class="presets" id="ratios"></div>
     </div>
     <div class="opts">
      <div class="oh">별도 옵션</div>
@@ -326,6 +340,7 @@ footer a{color:#cfd3d8}
     </div>
     <div class="sum">
      <div><span>영상 제작</span><b id="s_base"></b></div>
+     <div id="s_rw" hidden><span>화면 비율 추가</span><b id="s_r"></b></div>
      <div><span>별도 옵션</span><b id="s_opt"></b></div>
      <div><span>부가세 (10%)</span><b id="s_vat"></b></div>
      <div id="s_xw" hidden><span>별도 협의</span><b id="s_x"></b></div>
@@ -349,7 +364,7 @@ footer a{color:#cfd3d8}
      <li>녹음 — 한국어 성우·원어민 성우 내레이션</li>
      <li>가상 성우 — 전달력이 보장된 또렷한 내레이션, 여러 언어</li>
     </ul>
-    <p class="note">옵션은 계산기에서 함께 골라 견적서로 받으실 수 있습니다. 해외 현지 촬영과 외국어 버전·세로형 숏폼 추가는 상담할 때 따로 견적을 드립니다.</p>
+    <p class="note">옵션은 계산기에서 함께 골라 견적서로 받으실 수 있습니다. 해외 현지 촬영, 외국어 버전, 긴 영상에서 짧은 편집본을 따로 뽑는 작업은 상담할 때 견적을 드립니다.</p>
    </div>
   </div>
  </div>
@@ -424,6 +439,14 @@ footer a{color:#cfd3d8}
 <script>
 // 초당 단가(원) — 대표님 확정값으로 바꾸는 곳
 const UNIT = 15000;
+// 화면 비율 — 1개 포함, 추가 1개당 초당 단가(원, 부가세 별도)
+const RUNIT = 3000;
+const RATIOS = [
+ {k:'16x9', n:'가로 16:9', use:'유튜브·홈페이지·바이어 미팅', w:16, h:9},
+ {k:'9x16', n:'세로 9:16', use:'릴스·쇼츠·틱톡', w:9, h:16},
+ {k:'1x1', n:'정사각 1:1', use:'인스타그램 피드', w:12, h:12},
+ {k:'4x5', n:'피드 4:5', use:'인스타그램·페이스북 피드', w:11, h:14}
+];
 const WORKS = [
  {k:'yuja', t:'유자 수출 홍보영상', d:'5개 국어 버전 · 기업 홍보', c:'홍보', l:['EN','中','日','VI']},
  {k:'durewon', t:'두레원 기업 홍보영상', d:'공장·공정 소개 · 해외 출장용', c:'홍보', l:['EN','中']},
@@ -479,6 +502,18 @@ const xon = {};
 // 금액을 정하지 않고 「별도 협의」로 견적서에 올라가는 항목
 const extras = () => OPTS.filter(o => qty[o.k]).flatMap(o => [].concat(o.x && xon[o.x.k] ? [o.x.row] : [], o.fx ? [o.fx] : []));
 const qty = {}; OPTS.forEach(o => qty[o.k] = 0);
+// 고른 순서대로 — 맨 앞 비율이 포함분
+let rsel = ['16x9'];
+const rb = document.getElementById('ratios');
+document.querySelectorAll('.js-runit').forEach(e => e.textContent = won(RUNIT));
+rb.innerHTML = RATIOS.map(r => `<button data-r="${r.k}"><i style="width:${r.w}px;height:${r.h}px"></i>${r.n}</button>`).join('');
+rb.querySelectorAll('button').forEach(b => b.onclick = () => {
+ const k = b.dataset.r;
+ if(rsel.includes(k)){ if(rsel.length > 1) rsel = rsel.filter(x => x!==k); }
+ else rsel.push(k);
+ calc();
+});
+const rget = k => RATIOS.find(r => r.k===k);
 const ob = document.getElementById('opts');
 ob.innerHTML = OPTS.map(o => `<div class="orow"><div class="on1">${o.n} <small style="color:#aab0b8;font-weight:500">+${won(o.p)}원/${o.u==='개 언어'?'언어':o.u}</small><span class="od">${o.d}</span>${o.x ? `<label class="ox"><input type="checkbox" data-x="${o.x.k}">${o.x.lab} <span style="color:#8a919b">(출연료 별도 협의)</span></label>` : ''}</div>
  <div class="qty"><button data-k="${o.k}" data-d="-1">−</button><span id="q_${o.k}">0${o.u==='개 언어'?'':o.u}</span><button data-k="${o.k}" data-d="1">+</button></div></div>`).join('');
@@ -499,8 +534,10 @@ const sec = document.getElementById('sec'), secv = document.getElementById('secv
 function calc(){
  const s = +sec.value, mm = Math.floor(s/60), ss = s%60;
  secv.textContent = (mm ? mm+'분 ' : '') + (ss ? ss+'초' : '');
- const base = s*UNIT, opt = OPTS.reduce((a,o) => a + o.p*qty[o.k], 0), vat = Math.round((base+opt)/10);
- Q = {s, len: secv.textContent, base, opt, vat, sum: base+opt+vat};
+ const base = s*UNIT, rx = s*RUNIT*(rsel.length-1), opt = OPTS.reduce((a,o) => a + o.p*qty[o.k], 0), vat = Math.round((base+rx+opt)/10);
+ Q = {s, len: secv.textContent, base, rx, opt, vat, sum: base+rx+opt+vat};
+ rb.querySelectorAll('button').forEach(b => { const i = rsel.indexOf(b.dataset.r); b.className = i<0 ? '' : 'on'; b.querySelector('small')?.remove(); if(i>=0) b.insertAdjacentHTML('beforeend', i===0 ? '<small>포함</small>' : `<small>+${won(s*RUNIT)}원</small>`); });
+ document.getElementById('s_rw').hidden = !Q.rx; document.getElementById('s_r').textContent = won(Q.rx)+'원';
  document.getElementById('s_base').textContent = won(base)+'원';
  document.getElementById('s_opt').textContent = won(opt)+'원';
  document.getElementById('s_vat').textContent = won(vat)+'원';
@@ -530,8 +567,9 @@ function hanwon(n){
 function drawQ(){
  const v = id => esc(document.getElementById(id).value.trim());
  const co = v('q_co') || '<span style="color:#b0b5bc">(회사명)</span>';
- const sup = Q.base+Q.opt;
- const lines = [{g:'제작', n:'영상 제작', d:`${Q.len} · 기획·대본·제작·편집·자막·배경음악·수정 포함`, u:'초', q:Q.s, p:UNIT, a:Q.base}]
+ const sup = Q.base+Q.rx+Q.opt;
+ const lines = [{g:'제작', n:'영상 제작', d:`${Q.len} · ${rget(rsel[0]).n} · 기획·대본·제작·편집·자막·음악·수정 포함`, u:'초', q:Q.s, p:UNIT, a:Q.base}]
+  .concat(rsel.slice(1).map(k => ({g:'제작', n:'화면 비율 추가', d:`${rget(k).n} — ${rget(k).use}용으로 화면 재구성`, u:'초', q:Q.s, p:RUNIT, a:Q.s*RUNIT})))
   .concat(OPTS.filter(o => qty[o.k]).map(o => ({g:o.g, n:o.n, d:(o.x && xon[o.x.k] ? o.d.replace('출연료·초상권 1년 포함','초상권 1년') + ' · 에이전시 출연료 별도' : o.d), u:o.u==='개 언어'?'언어':o.u, q:qty[o.k], p:o.p, a:o.p*qty[o.k]})))
   .concat(extras().map(t => ({g:'별도', n:t.replace(/ \(.*\)$/,'').replace('에이전시 등록 모델 출연료','에이전시 출연료'), d:/\(/.test(t) ? t.replace(/^.*\((.*)\)$/,'$1') : '섭외 확정 후 협의', u:'식', q:'—', p:'협의', a:'별도 협의'})));
  // 같은 구분은 첫 줄에만 묶어 표시
@@ -571,14 +609,14 @@ function drawQ(){
  </table>
  <div class="q-sec">작업 조건 <small>TERMS &amp; CONDITIONS</small></div>
  <dl class="q-terms">
-  <div class="row"><dt>단가기준</dt><dd>영상 형태(제품 소개·기업 홍보·3D 애니메이션·로케이션·실내 세트)와 관계없이 <b>초당 ${won(UNIT)}원</b> 정찰제</dd></div>
-  <div class="row"><dt>일정·납품</dt><dd>상담 후 일정 확정 · 영상 파일(MP4), 화면비·해상도는 협의</dd></div>
+  <div class="row"><dt>단가기준</dt><dd>제품 소개·3D 애니메이션·블록버스터급 장면 등 영상 형태와 관계없이 <b>초당 ${won(UNIT)}원</b> 정찰제</dd></div>
+  <div class="row"><dt>일정·납품</dt><dd>상담 후 일정 확정 · 영상 파일(MP4), 해상도는 협의</dd></div>
   <div class="row"><dt>수정</dt><dd>구성안 범위 안의 수정 포함 · 구성 변경·컷 추가 시 별도 협의</dd></div>
   <div class="row"><dt>저작권</dt><dd>납품 완료 후 저작재산권 일체는 Client 에게 귀속 <b>(단, 제작사 포트폴리오 사용권 유보)</b></dd></div>
-  <div class="row"><dt>특이사항</dt><dd>홈페이지 계산기 예상 견적${extras().length ? ' (별도 협의 항목 제외)' : ''} · 결제는 계약 시 협의, 세금계산서 발행 · 최종 금액은 계약서로 확정 · 해외 현지 촬영·외국어 버전·숏폼은 별도 견적</dd></div>
+  <div class="row"><dt>특이사항</dt><dd>홈페이지 계산기 예상 견적${extras().length ? ' (별도 협의 항목 제외)' : ''} · 결제는 계약 시 협의, 세금계산서 발행 · 최종 금액은 계약서로 확정 · 해외 현지 촬영·외국어 버전·별도 편집본은 별도 견적</dd></div>
  </dl>
  <div class="q-sign"><div class="msg">위와 같이 견적합니다.</div><div class="who">오버 미디어아트 <b>대표 공수빈</b> <span class="seal">(인)<img src="media/oma_seal.png" alt=""></span></div></div>`;
- const body = `오버미디어아트 견적 상담 요청\n\n견적번호: ${qno}\n회사명: ${document.getElementById('q_co').value}\n담당자: ${document.getElementById('q_nm').value}\n연락처: ${document.getElementById('q_tel').value}\n\n영상 길이: ${Q.len}\n`
+ const body = `오버미디어아트 견적 상담 요청\n\n견적번호: ${qno}\n회사명: ${document.getElementById('q_co').value}\n담당자: ${document.getElementById('q_nm').value}\n연락처: ${document.getElementById('q_tel').value}\n\n영상 길이: ${Q.len}\n화면 비율: ${rsel.map(k => rget(k).n).join(', ')}\n`
   + OPTS.filter(o => qty[o.k]).map(o => `${o.n}: ${qty[o.k]}${o.u}\n`).join('') + extras().map(t => `${t}: 별도 협의\n`).join('') + `합계(부가세 포함): ${won(Q.sum)}원\n`;
  document.getElementById('qmail').href = 'mailto:oversubin87@gmail.com?subject=' + encodeURIComponent('[견적 상담] ' + (document.getElementById('q_co').value || '') + ' ' + qno) + '&body=' + encodeURIComponent(body);
 }
